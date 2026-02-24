@@ -8,7 +8,7 @@ import (
 
 func main() {
 	a := app.NewWithID("dev.topten.image-tools")
-	w := a.NewWindow("TopTen Image Tools")
+	w := a.NewWindow("Topten Image Tools")
 	w.Resize(fyne.NewSize(800, 580))
 	w.SetFixedSize(false)
 	w.CenterOnScreen()

@@ -1,12 +1,12 @@
-# TopTen Image Tools — User Guide
+# Topten Image Tools — User Guide
 
-This guide walks you through everything you need to know to convert images using TopTen Image Tools. No technical knowledge is needed.
+This guide walks you through everything you need to know to convert images using Topten Image Tools. No technical knowledge is needed.
 
 ---
 
 ## What does this app do?
 
-TopTen Image Tools prepares your images so they are ready to upload to the CMS. It does two things automatically:
+Topten Image Tools prepares your images so they are ready to upload to the CMS. It does two things automatically:
 
 1. **Converts** your images to the right file format (JPG or PNG).
 2. **Resizes** them so they are never wider or taller than 1 200 pixels — the maximum size the CMS needs. If your image is already small enough, it will not be changed in size.
@@ -19,7 +19,7 @@ Your original files are **never modified or deleted**. The app always creates ne
 
 | Platform | How to open |
 |---|---|
-| **macOS** | Double-click **TopTen Image Tools** in your Applications folder (or wherever you saved it) |
+| **macOS** | Double-click **Topten Image Tools** in your Applications folder (or wherever you saved it) |
 | **Windows** | Double-click **topten-image-tools.exe** |
 | **Linux** | Double-click the file or run it from your file manager |
 

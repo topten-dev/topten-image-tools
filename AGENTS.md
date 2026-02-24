@@ -229,7 +229,7 @@ Defined in [FyneApp.toml](FyneApp.toml):
 ```toml
 [Details]
   ID      = "dev.topten.image-tools"
-  Name    = "TopTen Image Tools"
+  Name    = "Topten Image Tools"
   Version = "1.0.0"
   Icon    = "Icon.png"
 ```

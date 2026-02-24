@@ -10,7 +10,7 @@ import (
 
 // Welcome renders the landing screen with the three conversion mode buttons.
 func Welcome(w fyne.Window, onSelect func(mode string)) fyne.CanvasObject {
-	title := canvas.NewText("TopTen Image Tools", color.White)
+	title := canvas.NewText("Topten Image Tools", color.White)
 	title.TextSize = 28
 	title.TextStyle = fyne.TextStyle{Bold: true}
 	title.Alignment = fyne.TextAlignCenter

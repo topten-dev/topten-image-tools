@@ -130,7 +130,7 @@ jobs:
         run: |
           fyne package \
             -os darwin \
-            -name "TopTen Image Tools" \
+            -name "Topten Image Tools" \
             -appID "dev.topten.image-tools"
 
       # ── Archive ───────────────────────────────────────────────────────────
@@ -149,7 +149,7 @@ jobs:
       - name: Archive (macOS)
         if: runner.os == 'macOS'
         run: |
-          zip -r "${{ matrix.archive }}" "TopTen Image Tools.app"
+          zip -r "${{ matrix.archive }}" "Topten Image Tools.app"
 
       # ── Upload artifact for release job ───────────────────────────────────
       - name: Upload build artifact

@@ -1,4 +1,4 @@
-# TopTen Image Tools
+# Topten Image Tools
 
 A cross-platform desktop app that converts images into CMS-ready formats with sensible defaults — no technical knowledge required.
 
@@ -83,7 +83,7 @@ go build -ldflags="-s -w -H=windowsgui" -o topten-image-tools.exe .
 
 ```bash
 go install fyne.io/fyne/v2/cmd/fyne@latest
-fyne package -os darwin -name "TopTen Image Tools" -appID "dev.topten.image-tools"
+fyne package -os darwin -name "Topten Image Tools" -appID "dev.topten.image-tools"
 ```
 
 > **App icon** — place a 1 024 × 1 024 `Icon.png` in the project root before packaging. `FyneApp.toml` already points to it.
