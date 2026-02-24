@@ -220,7 +220,7 @@ func TestRun_ConvertPNGtoJPEG(t *testing.T) {
 		t.Error("expected Done to be true on last progress")
 	}
 
-	outFile := filepath.Join(out, "photo.jpg")
+	outFile := filepath.Join(out, "photo_converted.jpg")
 	if _, err := os.Stat(outFile); err != nil {
 		t.Errorf("expected output file %s: %v", outFile, err)
 	}
@@ -241,8 +241,8 @@ func TestRun_ConvertPNGtoPNG(t *testing.T) {
 	for range ch {
 	}
 
-	if _, err := os.Stat(filepath.Join(out, "banner.png")); err != nil {
-		t.Errorf("expected banner.png in output: %v", err)
+	if _, err := os.Stat(filepath.Join(out, "banner_converted.png")); err != nil {
+		t.Errorf("expected banner_converted.png in output: %v", err)
 	}
 }
 
@@ -283,7 +283,7 @@ func TestRun_ResizesOversizedImage(t *testing.T) {
 	for range ch {
 	}
 
-	outFile := filepath.Join(out, "big.png")
+	outFile := filepath.Join(out, "big_converted.png")
 	f, err := os.Open(outFile)
 	if err != nil {
 		t.Fatalf("open output: %v", err)
@@ -408,9 +408,9 @@ func TestRun_CollisionSafe(t *testing.T) {
 	if _, err := os.Stat(srcFile); err != nil {
 		t.Errorf("source file was deleted or renamed: %v", err)
 	}
-	out := filepath.Join(dir, "same_1.png")
+	out := filepath.Join(dir, "same_converted.png")
 	if _, err := os.Stat(out); err != nil {
-		t.Errorf("expected collision-safe output at %s: %v", out, err)
+		t.Errorf("expected converted output at %s: %v", out, err)
 	}
 }
 

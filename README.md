@@ -13,10 +13,10 @@ A cross-platform desktop app that converts images into CMS-ready formats with se
 | **Single image** | Pick one file, choose output format & folder |
 | **Multiple images** | Queue several files and convert them in one go |
 | **Entire folder** | Convert every image in a folder at once |
-| **Format wizard** | Conversational guide recommends PNG or JPG based on your image type |
+| **Format wizard** | Three-card picker — choose JPEG, PNG, or "Use defaults" (JPEG) in one click |
 | **Auto-resize** | Every image is scaled down to a maximum of **1 200 px** on either side, aspect ratio preserved, never upscaled |
-| **Transparency detection** | Source files with alpha channels automatically trigger a PNG recommendation |
-| **Space savings report** | Results screen shows exactly how many bytes were saved |
+| **Transparency handling** | When source files with alpha channels are detected, an inline warning appears on the JPEG card — transparent areas are filled with white if JPEG is chosen |
+| **Safe output names** | Converted files are always written as `<name>_converted.<ext>` — originals are never overwritten |
 | **Portable** | Single self-contained binary — no installer or runtime required |
 | **Cross-platform** | macOS (Intel & Apple Silicon), Windows, Linux |
 
@@ -24,25 +24,15 @@ A cross-platform desktop app that converts images into CMS-ready formats with se
 
 ## Format wizard
 
-Two plain-language questions guide you to the right output format.
+One screen, three cards — click **Select** and move on:
 
-**1 — What best describes your images?**
-
-| Choice | Recommendation |
+| Card | Output format |
 |---|---|
-| 📷 Photos or natural images | JPG |
-| ✏️ Graphics with text or logos | PNG |
-| 🔍 Images with a transparent background | PNG |
-| 📢 Website hero banners / featured images | → follow-up question |
+| 📷 **JPEG** | Photos, landscapes, product shots, gradients. Smallest file size. |
+| ✏️ **PNG** | Graphics with text or logos, screenshots, transparent backgrounds. Lossless. |
+| ⚡ **Use defaults** | Not sure? Picks JPEG — works well for most images. |
 
-**2 — (Banners only) Do they contain text overlays or logos?**
-
-| Answer | Recommendation |
-|---|---|
-| Yes | PNG |
-| No — purely photographic | JPG |
-
-The recommendation is shown as a card with a plain-English reason. You can always override to the other format before converting.
+If the app detects that any source file has a transparent background, an inline note appears on the JPEG card. Those files are saved as PNG automatically; the rest of the batch follows your chosen format.
 
 ---
 

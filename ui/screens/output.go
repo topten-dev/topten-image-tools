@@ -62,7 +62,7 @@ func OutputPicker(
 	fileList.Wrapping = fyne.TextWrapWord
 
 	return container.NewPadded(container.NewBorder(
-		container.NewVBox(title, summary, container.NewHBox(browseBtn, dirLabel)),
+		container.NewVBox(title, summary, container.NewBorder(nil, nil, browseBtn, nil, dirLabel)),
 		container.NewCenter(container.NewHBox(backBtn, convertBtn)),
 		nil, nil,
 		container.NewVScroll(fileList),

@@ -66,13 +66,10 @@ func Results(
 		errBox = widget.NewLabel("")
 	}
 
-	return container.NewPadded(container.NewCenter(
-		container.NewVBox(
-			headline,
-			statsLabel,
-			buttonRow,
-			errBox,
-		),
+	return container.NewPadded(container.NewBorder(
+		container.NewVBox(headline, statsLabel, buttonRow),
+		nil, nil, nil,
+		errBox,
 	))
 }
 

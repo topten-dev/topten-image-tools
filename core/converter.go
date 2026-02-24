@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/disintegration/imaging"
+	_ "golang.org/x/image/webp" // register WebP decoder
 )
 
 // MaxDimension is the maximum width or height after resizing.
@@ -105,8 +106,8 @@ func convertFile(src, outputDir string, format Format, quality int) (saved int64
 	// Build output path.
 	baseName := trimExtension(filepath.Base(src))
 	ext := "." + string(format)
-	outPath := filepath.Join(outputDir, baseName+ext)
-	// Avoid overwriting if source and output happen to be the same file.
+	outPath := filepath.Join(outputDir, baseName+"_converted"+ext)
+	// Avoid overwriting an existing file with the same name.
 	outPath = uniquePath(outPath)
 
 	out, err := os.Create(outPath)

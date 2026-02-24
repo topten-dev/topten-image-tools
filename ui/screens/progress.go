@@ -33,7 +33,7 @@ func Progress(
 	bar.Max = float64(len(job.SourceFiles))
 
 	statusLabel := widget.NewLabel("Starting…")
-	statusLabel.Alignment = fyne.TextAlignCenter
+	statusLabel.Wrapping = fyne.TextWrapWord
 
 	cancelBtn := widget.NewButton("Cancel", onCancel)
 	cancelBtn.Importance = widget.DangerImportance
@@ -59,12 +59,12 @@ func Progress(
 		fyne.Do(func() { onDone(result) })
 	}()
 
-	return container.NewPadded(container.NewCenter(
+	return container.NewPadded(
 		container.NewVBox(
 			title,
 			bar,
 			statusLabel,
 			container.NewCenter(cancelBtn),
 		),
-	))
+	)
 }

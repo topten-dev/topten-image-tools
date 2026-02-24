@@ -80,7 +80,8 @@ Defined in [core/converter.go](core/converter.go):
 - Aspect ratio is **always preserved**; images below 1200 px are **never upscaled**
 - JPEG alpha channels are flattened to **white** before encoding
 - Default JPEG quality: **85** (`DefaultQuality = 85`)
-- Output filenames **never overwrite** existing files — `uniquePath()` appends `_1`, `_2`, etc.
+- Output filenames always include a `_converted` suffix (e.g. `photo.jpg` → `photo_converted.jpg`) so originals are never overwritten even when source and output directories are the same
+- If `_converted` name already exists, `uniquePath()` appends `_1`, `_2`, etc.
 - Conversion runs in a **goroutine**; progress is sent via a `chan Progress`
 - Cancellation is handled via a `cancel <-chan struct{}`; closing the channel stops the loop
 
@@ -90,15 +91,15 @@ Defined in [core/converter.go](core/converter.go):
 
 In [ui/screens/wizard.go](ui/screens/wizard.go):
 
-| User answer | Format |
-|---|---|
-| Photos / natural images | JPG |
-| Graphics with text or logos | PNG |
-| Transparent background | PNG |
-| Banner + has text/logos | PNG |
-| Banner + no text (photographic) | JPG |
+The wizard presents three large option cards. Clicking **Select** on any card calls `onConfirm` immediately — there are no follow-up questions.
 
-**Alpha override:** if `core.HasAlpha()` returns true for any source file, a JPG recommendation is silently upgraded to PNG regardless of wizard answers.
+| Card | Format passed to `onConfirm` |
+|---|---|
+| 📷 JPEG | `core.FormatJPEG` |
+| ✏️ PNG | `core.FormatPNG` |
+| ⚡ Use defaults | `core.FormatJPEG` |
+
+**Alpha note:** if `anyAlpha` is true and the user picks JPEG, a plain-English warning is shown inline on the JPEG card. The format passed to `onConfirm` is still `FormatJPEG`; the per-file alpha handling (flattening to white) is done inside `core.convertFile`.
 
 `HasAlpha` is extension-based only (`.png`, `.gif`, `.webp` → true). It does not decode the file.
 
@@ -109,6 +110,8 @@ In [ui/screens/wizard.go](ui/screens/wizard.go):
 `.jpg` `.jpeg` `.png` `.gif` `.bmp` `.tiff` `.tif` `.webp`
 
 Defined in `core.SupportedExtensions` (map). Extension matching is **case-insensitive** via `strings.ToLower`.
+
+WebP decoding is enabled by a blank import of `_ "golang.org/x/image/webp"` in [core/converter.go](core/converter.go). Without it Go's `image.Decode` returns "unknown format" for `.webp` files.
 
 ---
 
@@ -207,7 +210,6 @@ push to main / PR
        └─ build job (needs: test)
             ├─ ubuntu-latest  → topten-image-tools-linux-amd64.tar.gz
             ├─ windows-latest → topten-image-tools-windows-amd64.zip
-            ├─ macos-13 (Intel)      → topten-image-tools-macos-intel.zip
             └─ macos-14 (ARM)        → topten-image-tools-macos-arm64.zip
 
 push tag v*.*.*

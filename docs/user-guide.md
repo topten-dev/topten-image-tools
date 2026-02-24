@@ -72,45 +72,17 @@ Use this when you want to convert **all images inside one folder** at the same t
 
 ## Step 2 — Choose the right format
 
-The app asks you a short question to work out whether your images should be saved as **JPG** or **PNG**.
+The app shows you three options. Click **Select** next to the one that fits your images:
 
-### What is the difference?
-
-| Format | Best for |
+| Option | When to use it |
 |---|---|
-| **JPG** | Photos, landscapes, people, product shots, gradients. Smaller file size. |
-| **PNG** | Logos, screenshots, infographics, anything with text on it, or images with a transparent background. Crisp and lossless. |
+| 📷 **JPEG** | Photos, landscapes, product shots, anything with lots of colours or gradients. Produces the smallest files. |
+| ✏️ **PNG** | Graphics with text or logos, screenshots, infographics, or anything with a transparent background. Lossless — no quality is lost. |
+| ⚡ **Use defaults** | Not sure? This picks JPEG and works well for most images. |
 
-### How to answer
+Clicking **Select** on any card moves you straight to the next step — there are no extra questions.
 
-Read the four options and click **Select** next to the one that best describes the images you are converting:
-
-| Option | Examples |
-|---|---|
-| 📷 Photos or natural images | Holiday photos, product photography, lifestyle shots |
-| ✏️ Graphics with text or logos | Infographics, screenshots, team headshots with name overlays |
-| 🔍 Images with a transparent background | Icons, cutout images, product images with no background |
-| 📢 Website hero banners / featured images | The large image at the top of an article or homepage section |
-
-**If you picked "Hero banners"**, one more question appears:
-
-> *Do your banners contain text overlays or logos?*
-
-- Click **Yes** if the banner has a title, headline, or logo placed on top of the image.
-- Click **No** if it is a pure photograph with no text.
-
----
-
-### The recommendation card
-
-After you answer, a coloured card appears with the recommended format and a short reason explaining why. For example:
-
-> **PNG recommended ✏️**
-> Images with text, logos, or sharp lines preserve quality best as PNG (lossless).
-
-If you disagree with the recommendation, you can override it by clicking **Use JPG instead** or **Use PNG instead** before moving on.
-
-When you are happy with the format, click **Use this format →**.
+> **Transparent images:** If the app detects that one or more of your source files has a transparent background, a note will appear on the JPEG card. If you proceed with JPEG, the transparent areas will be filled with a **white background** — JPEG does not support transparency. Choose PNG instead if you need the transparency to be kept.
 
 ---
 
@@ -158,7 +130,7 @@ The wizard picks one format for the whole batch. If your batch contains a true m
 No. The app always creates new files. Your originals are never touched.
 
 **What if a converted file already exists in the output folder?**
-The app will not overwrite it. It automatically adds a number to the new file name (e.g. `banner_1.jpg`) so nothing is lost.
+The app will not overwrite it. Converted files are always saved with `_converted` added to the name (e.g. `banner_converted.jpg`). If that name is also taken, a number is added automatically (e.g. `banner_converted_1.jpg`) so nothing is lost.
 
 **What image files does the app accept?**
 JPG, JPEG, PNG, GIF, BMP, TIFF, TIF, and WebP.
