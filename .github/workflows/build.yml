@@ -62,10 +62,6 @@ jobs:
             platform: windows
             archive: topten-image-tools-windows-amd64.zip
 
-          - os: macos-13           # Intel x86-64
-            platform: macos-intel
-            archive: topten-image-tools-macos-intel.zip
-
           - os: macos-14           # Apple Silicon
             platform: macos-arm64
             archive: topten-image-tools-macos-arm64.zip
