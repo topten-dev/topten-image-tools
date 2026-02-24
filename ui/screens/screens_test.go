@@ -32,6 +32,7 @@ func TestWelcomeScreen_Renders(t *testing.T) {
 		t.Fatal("Welcome returned nil")
 	}
 	w.SetContent(content)
+	_ = called
 }
 
 func TestWelcomeScreen_CallbackSingle(t *testing.T) {
