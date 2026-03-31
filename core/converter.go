@@ -31,7 +31,8 @@ type Job struct {
 	SourceFiles []string
 	OutputDir   string
 	Format      Format
-	Quality     int // JPEG quality 1–100; ignored for PNG
+	Quality     int  // JPEG quality 1–100; ignored for PNG
+	AddSuffix   bool // when true, output files get a "_converted" suffix
 }
 
 // Progress reports the state of a running conversion.
@@ -73,7 +74,7 @@ func Run(job Job, cancel <-chan struct{}) <-chan Progress {
 				FileName: filepath.Base(src),
 			}
 
-			saved, err := convertFile(src, job.OutputDir, job.Format, job.Quality)
+			saved, err := convertFile(src, job.OutputDir, job.Format, job.Quality, job.AddSuffix)
 			if err != nil {
 				p.Error = fmt.Errorf("%s: %w", filepath.Base(src), err)
 			}
@@ -93,7 +94,7 @@ func Run(job Job, cancel <-chan struct{}) <-chan Progress {
 
 // convertFile converts a single image file and returns the byte savings (can be
 // negative if the output is larger than the input).
-func convertFile(src, outputDir string, format Format, quality int) (saved int64, err error) {
+func convertFile(src, outputDir string, format Format, quality int, addSuffix bool) (saved int64, err error) {
 	// Open source image.
 	img, err := imaging.Open(src, imaging.AutoOrientation(true))
 	if err != nil {
@@ -115,7 +116,11 @@ func convertFile(src, outputDir string, format Format, quality int) (saved int64
 	// Build output path.
 	baseName := trimExtension(filepath.Base(src))
 	ext := "." + string(format)
-	outPath := filepath.Join(outputDir, baseName+"_converted"+ext)
+	suffix := ""
+	if addSuffix {
+		suffix = "_converted"
+	}
+	outPath := filepath.Join(outputDir, baseName+suffix+ext)
 	// Avoid overwriting an existing file with the same name.
 	outPath = uniquePath(outPath)
 

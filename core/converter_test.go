@@ -206,6 +206,7 @@ func TestRun_ConvertPNGtoJPEG(t *testing.T) {
 		SourceFiles: []string{srcFile},
 		OutputDir:   out,
 		Format:      FormatJPEG,
+		AddSuffix:   true,
 	}, cancel)
 
 	var last Progress
@@ -236,6 +237,7 @@ func TestRun_ConvertPNGtoPNG(t *testing.T) {
 		SourceFiles: []string{srcFile},
 		OutputDir:   out,
 		Format:      FormatPNG,
+		AddSuffix:   true,
 	}, cancel)
 
 	for range ch {
@@ -278,6 +280,7 @@ func TestRun_ResizesOversizedImage(t *testing.T) {
 		SourceFiles: []string{srcFile},
 		OutputDir:   out,
 		Format:      FormatPNG,
+		AddSuffix:   true,
 	}, cancel)
 
 	for range ch {
@@ -399,6 +402,7 @@ func TestRun_CollisionSafe(t *testing.T) {
 		SourceFiles: []string{srcFile},
 		OutputDir:   dir,
 		Format:      FormatPNG,
+		AddSuffix:   true,
 	}, cancel)
 
 	for range ch {

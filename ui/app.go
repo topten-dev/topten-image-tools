@@ -23,6 +23,7 @@ type AppState struct {
 
 	// Filled by output selection.
 	OutputDir string
+	AddSuffix bool
 }
 
 // NewAppState creates an AppState and applies the custom app theme.
@@ -81,8 +82,9 @@ func (s *AppState) showOutputPicker() {
 		s.Window,
 		s.SourceFiles,
 		s.Format,
-		func(outDir string) {
+		func(outDir string, addSuffix bool) {
 			s.OutputDir = outDir
+			s.AddSuffix = addSuffix
 			s.showProgress()
 		},
 		s.showWizard,
@@ -99,6 +101,7 @@ func (s *AppState) showProgress() {
 			SourceFiles: s.SourceFiles,
 			OutputDir:   s.OutputDir,
 			Format:      s.Format,
+			AddSuffix:   s.AddSuffix,
 		},
 		cancelCh,
 		func(results screens.ConversionResult) {

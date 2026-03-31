@@ -102,7 +102,7 @@ func TestOutputPickerScreen_Renders(t *testing.T) {
 	_ = os.WriteFile(f, []byte{}, 0o644)
 
 	_, w := setup(t)
-	content := screens.OutputPicker(w, []string{f}, core.FormatJPEG, func(string) {}, func() {})
+	content := screens.OutputPicker(w, []string{f}, core.FormatJPEG, func(string, bool) {}, func() {})
 	if content == nil {
 		t.Fatal("OutputPicker returned nil")
 	}
@@ -112,7 +112,7 @@ func TestOutputPickerScreen_Renders(t *testing.T) {
 func TestOutputPickerScreen_Renders_EmptyFileList(t *testing.T) {
 	_, w := setup(t)
 	// No crash even with an empty file list (edge case: all files cleared).
-	content := screens.OutputPicker(w, []string{}, core.FormatPNG, func(string) {}, func() {})
+	content := screens.OutputPicker(w, []string{}, core.FormatPNG, func(string, bool) {}, func() {})
 	if content == nil {
 		t.Fatal("OutputPicker with empty list returned nil")
 	}

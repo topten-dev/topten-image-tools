@@ -16,7 +16,7 @@ func OutputPicker(
 	w fyne.Window,
 	files []string,
 	format core.Format,
-	onConfirm func(outDir string),
+	onConfirm func(outDir string, addSuffix bool),
 	onBack func(),
 ) fyne.CanvasObject {
 	var outputDir string
@@ -35,6 +35,14 @@ func OutputPicker(
 	convertBtn := widget.NewButton("Convert Now", nil)
 	convertBtn.Importance = widget.HighImportance
 	convertBtn.Disable()
+
+	fileList := widget.NewLabel(buildFileList(files, format, true))
+	fileList.Wrapping = fyne.TextWrapWord
+
+	suffixCheck := widget.NewCheck("Add \"_converted\" to file names", func(checked bool) {
+		fileList.SetText(buildFileList(files, format, checked))
+	})
+	suffixCheck.SetChecked(true)
 
 	browseBtn := widget.NewButton("Browse…", func() {
 		go func() {
@@ -61,14 +69,11 @@ func OutputPicker(
 		convertBtn.Enable()
 	}
 
-	convertBtn.OnTapped = func() { onConfirm(outputDir) }
+	convertBtn.OnTapped = func() { onConfirm(outputDir, suffixCheck.Checked) }
 	backBtn := widget.NewButton("← Back", onBack)
 
-	fileList := widget.NewLabel(buildFileList(files, format))
-	fileList.Wrapping = fyne.TextWrapWord
-
 	return container.NewPadded(container.NewBorder(
-		container.NewVBox(title, summary, container.NewBorder(nil, nil, browseBtn, nil, dirLabel)),
+		container.NewVBox(title, summary, container.NewBorder(nil, nil, browseBtn, nil, dirLabel), suffixCheck),
 		container.NewCenter(container.NewHBox(backBtn, convertBtn)),
 		nil, nil,
 		container.NewVScroll(fileList),
@@ -85,12 +90,16 @@ func formatLabel(f core.Format) string {
 	return string(f)
 }
 
-func buildFileList(files []string, format core.Format) string {
+func buildFileList(files []string, format core.Format, addSuffix bool) string {
 	ext := "." + string(format)
+	suffix := ""
+	if addSuffix {
+		suffix = "_converted"
+	}
 	out := ""
 	for _, f := range files {
 		stem := filepath.Base(f[:len(f)-len(filepath.Ext(f))])
-		out += fmt.Sprintf("  %s  →  %s%s\n", filepath.Base(f), stem, ext)
+		out += fmt.Sprintf("  %s  →  %s%s%s\n", filepath.Base(f), stem, suffix, ext)
 	}
 	return out
 }
