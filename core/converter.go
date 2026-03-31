@@ -100,6 +100,15 @@ func convertFile(src, outputDir string, format Format, quality int) (saved int64
 		return 0, fmt.Errorf("open: %w", err)
 	}
 
+	// For JPEG, flatten alpha to white BEFORE resizing so Lanczos
+	// interpolation operates on fully opaque pixels. Otherwise transparent
+	// pixels (RGB 0,0,0) bleed grey into neighbouring colours during
+	// resampling—especially visible with WebP sources.
+	if format == FormatJPEG {
+		flat := imaging.New(img.Bounds().Dx(), img.Bounds().Dy(), color.White)
+		img = imaging.Overlay(flat, img, image.Point{}, 1.0)
+	}
+
 	// Resize if needed, preserving aspect ratio.
 	img = resizeIfNeeded(img)
 
@@ -118,10 +127,7 @@ func convertFile(src, outputDir string, format Format, quality int) (saved int64
 
 	switch format {
 	case FormatJPEG:
-		// Flatten alpha channel to white before JPEG encoding.
-		flat := imaging.New(img.Bounds().Dx(), img.Bounds().Dy(), color.White)
-		flat = imaging.Paste(flat, img, image.Point{})
-		if err := jpeg.Encode(out, flat, &jpeg.Options{Quality: quality}); err != nil {
+		if err := jpeg.Encode(out, img, &jpeg.Options{Quality: quality}); err != nil {
 			return 0, fmt.Errorf("encode jpeg: %w", err)
 		}
 	case FormatPNG:
