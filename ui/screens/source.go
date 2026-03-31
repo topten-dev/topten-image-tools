@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
+	"github.com/ncruces/zenity"
 	"github.com/topten-dev/topten-image-tools/core"
 )
 
@@ -57,56 +58,76 @@ func Source(
 	pickBtn := widget.NewButton(btnLabel, func() {
 		switch mode {
 		case "single":
-			dialog.ShowFileOpen(func(r fyne.URIReadCloser, err error) {
-				if err != nil || r == nil {
+			go func() {
+				filename, err := zenity.SelectFile(
+					zenity.Title("Select Image"),
+					zenity.FileFilters{{
+						Name:     "Images",
+						Patterns: []string{"*.jpg", "*.jpeg", "*.png", "*.gif", "*.bmp", "*.tiff", "*.tif", "*.webp"},
+						CaseFold: true,
+					}},
+				)
+				if err != nil || filename == "" {
 					return
 				}
-				r.Close()
-				path := r.URI().Path()
-				filtered := core.FilterSupported([]string{path})
-				if len(filtered) > 0 {
-					selectedFiles = filtered
-					selectedDir = ""
-					updateList()
-				} else {
-					dialog.ShowInformation("Unsupported file", "Please select a supported image file (JPG, PNG, GIF, BMP, TIFF, WebP).", w)
-				}
-			}, w)
+				fyne.Do(func() {
+					filtered := core.FilterSupported([]string{filename})
+					if len(filtered) > 0 {
+						selectedFiles = filtered
+						selectedDir = ""
+						updateList()
+					} else {
+						dialog.ShowInformation("Unsupported file", "Please select a supported image file (JPG, PNG, GIF, BMP, TIFF, WebP).", w)
+					}
+				})
+			}()
 
 		case "multiple":
-			dialog.ShowFileOpen(func(r fyne.URIReadCloser, err error) {
-				if err != nil || r == nil {
+			go func() {
+				filenames, err := zenity.SelectFileMultiple(
+					zenity.Title("Select Images"),
+					zenity.FileFilters{{
+						Name:     "Images",
+						Patterns: []string{"*.jpg", "*.jpeg", "*.png", "*.gif", "*.bmp", "*.tiff", "*.tif", "*.webp"},
+						CaseFold: true,
+					}},
+				)
+				if err != nil || len(filenames) == 0 {
 					return
 				}
-				r.Close()
-				path := r.URI().Path()
-				// Fyne's file open dialog is single-file; we accumulate picks.
-				filtered := core.FilterSupported([]string{path})
-				if len(filtered) > 0 {
-					selectedFiles = append(selectedFiles, filtered...)
-					updateList()
-				}
-			}, w)
+				fyne.Do(func() {
+					filtered := core.FilterSupported(filenames)
+					if len(filtered) > 0 {
+						selectedFiles = append(selectedFiles, filtered...)
+						updateList()
+					}
+				})
+			}()
 
 		case "folder":
-			dialog.ShowFolderOpen(func(lu fyne.ListableURI, err error) {
-				if err != nil || lu == nil {
+			go func() {
+				dir, err := zenity.SelectFile(
+					zenity.Title("Select Folder"),
+					zenity.Directory(),
+				)
+				if err != nil || dir == "" {
 					return
 				}
-				dir := lu.Path()
-				files, scanErr := core.ScanFolder(dir, false)
-				if scanErr != nil {
-					dialog.ShowError(scanErr, w)
-					return
+				fyne.Do(func() {
+					files, scanErr := core.ScanFolder(dir, false)
+					if scanErr != nil {
+						dialog.ShowError(scanErr, w)
+						return
 				}
-				if len(files) == 0 {
-					dialog.ShowInformation("No images found", "The selected folder contains no supported image files.", w)
-					return
-				}
-				selectedDir = dir
-				selectedFiles = files
-				updateList()
-			}, w)
+					if len(files) == 0 {
+						dialog.ShowInformation("No images found", "The selected folder contains no supported image files.", w)
+						return
+					}
+					selectedDir = dir
+					selectedFiles = files
+					updateList()
+				})
+			}()
 		}
 	})
 	pickBtn.Importance = widget.MediumImportance

@@ -6,8 +6,8 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
+	"github.com/ncruces/zenity"
 	"github.com/topten-dev/topten-image-tools/core"
 )
 
@@ -37,14 +37,20 @@ func OutputPicker(
 	convertBtn.Disable()
 
 	browseBtn := widget.NewButton("Browse…", func() {
-		dialog.ShowFolderOpen(func(lu fyne.ListableURI, err error) {
-			if err != nil || lu == nil {
+		go func() {
+			dir, err := zenity.SelectFile(
+				zenity.Title("Select Output Folder"),
+				zenity.Directory(),
+			)
+			if err != nil || dir == "" {
 				return
 			}
-			outputDir = lu.Path()
-			dirLabel.SetText("Output: " + outputDir)
-			convertBtn.Enable()
-		}, w)
+			fyne.Do(func() {
+				outputDir = dir
+				dirLabel.SetText("Output: " + outputDir)
+				convertBtn.Enable()
+			})
+		}()
 	})
 	browseBtn.Importance = widget.MediumImportance
 
