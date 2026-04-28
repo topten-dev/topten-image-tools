@@ -2,6 +2,7 @@
 package core
 
 import (
+	"bytes"
 	"fmt"
 	"image"
 	"image/color"
@@ -101,11 +102,33 @@ func convertFile(src, outputDir string, format Format, quality int, addSuffix bo
 		return 0, fmt.Errorf("open: %w", err)
 	}
 
+	// Extract any embedded ICC colour profile from the source so we can
+	// re-embed it in the output. Without this, profile-tagged sources
+	// (common in product photos exported from Capture One / Photoshop or
+	// produced as WebP with an ICCP chunk) render with a colour shift —
+	// typically a grey cast on what should be white backgrounds — when
+	// viewers fall back to the untagged-sRGB default.
+	//
+	// We pass the bytes through verbatim rather than transforming pixels:
+	// proper transforms from arbitrary profiles need a full colour
+	// management library (lcms2). Pass-through is correct for any
+	// profile-aware viewer (browsers, Photoshop, most CMS image renderers).
+	var iccProfile []byte
+	if format == FormatJPEG {
+		iccProfile, _ = extractICCProfile(src) // best-effort; ignore errors
+	}
+
 	// For JPEG, flatten alpha to white BEFORE resizing so Lanczos
 	// interpolation operates on fully opaque pixels. Otherwise transparent
 	// pixels (RGB 0,0,0) bleed grey into neighbouring colours during
 	// resampling—especially visible with WebP sources.
-	if format == FormatJPEG {
+	//
+	// IMPORTANT: only flatten when the decoded image actually has an alpha
+	// channel. Running Overlay on an already-opaque image (e.g. a JPEG that
+	// decoded to YCbCr) is a wasted round-trip through NRGBA blending that
+	// can darken near-white pixels by a few levels, producing a visible
+	// grey cast on white backgrounds.
+	if format == FormatJPEG && imageHasAlpha(img) {
 		flat := imaging.New(img.Bounds().Dx(), img.Bounds().Dy(), color.White)
 		img = imaging.Overlay(flat, img, image.Point{}, 1.0)
 	}
@@ -132,8 +155,21 @@ func convertFile(src, outputDir string, format Format, quality int, addSuffix bo
 
 	switch format {
 	case FormatJPEG:
-		if err := jpeg.Encode(out, img, &jpeg.Options{Quality: quality}); err != nil {
+		// Encode to a buffer first so we can splice the ICC profile in.
+		var buf bytes.Buffer
+		if err := jpeg.Encode(&buf, img, &jpeg.Options{Quality: quality}); err != nil {
 			return 0, fmt.Errorf("encode jpeg: %w", err)
+		}
+		jpegBytes := buf.Bytes()
+		if len(iccProfile) > 0 {
+			if withICC, err := embedICCProfileJPEG(jpegBytes, iccProfile); err == nil {
+				jpegBytes = withICC
+			}
+			// On embed failure we still write the un-tagged JPEG rather
+			// than fail the whole conversion.
+		}
+		if _, err := out.Write(jpegBytes); err != nil {
+			return 0, fmt.Errorf("write jpeg: %w", err)
 		}
 	case FormatPNG:
 		if err := png.Encode(out, img); err != nil {
@@ -195,6 +231,24 @@ func HasAlpha(path string) bool {
 	// PNG and GIF always support alpha; WebP can too.
 	switch ext {
 	case ".png", ".gif", ".webp":
+		return true
+	}
+	return false
+}
+
+// imageHasAlpha reports whether the decoded image's color model carries an
+// alpha channel. Opaque formats like YCbCr (JPEG), Gray, and CMYK do not, so
+// they should never be passed through alpha-flattening.
+func imageHasAlpha(img image.Image) bool {
+	switch img.ColorModel() {
+	case color.NRGBAModel, color.NRGBA64Model,
+		color.RGBAModel, color.RGBA64Model,
+		color.AlphaModel, color.Alpha16Model:
+		return true
+	}
+	// Paletted images (e.g. GIF, indexed PNG) may include a transparent
+	// index entry, so treat them as potentially alpha-bearing.
+	if _, ok := img.(*image.Paletted); ok {
 		return true
 	}
 	return false

@@ -439,3 +439,88 @@ func TestRun_BytesSavedPopulated(t *testing.T) {
 	// but must be populated (non-zero for a real image).
 	_ = last.BytesSaved // value is informational; we just confirm no panic
 }
+
+// ── White-background JPEG → JPEG regression ───────────────────────────────────
+//
+// Reproduces the bug where solid-white JPEG backgrounds were converted with a
+// visible grey cast because the unconditional alpha-flatten path forced an
+// opaque YCbCr image through NRGBA Overlay blending.
+
+func TestRun_WhiteJPEGRoundTrip_StaysWhite(t *testing.T) {
+	src := t.TempDir()
+	out := t.TempDir()
+
+	// Solid pure-white JPEG, large enough to trigger the resize path too.
+	white := image.NewRGBA(image.Rect(0, 0, 1500, 1500))
+	for y := 0; y < 1500; y++ {
+		for x := 0; x < 1500; x++ {
+			white.Set(x, y, color.RGBA{R: 255, G: 255, B: 255, A: 255})
+		}
+	}
+	srcPath := writeJPEG(t, src, "white.jpg", white)
+
+	cancel := make(chan struct{})
+	ch := Run(Job{
+		SourceFiles: []string{srcPath},
+		OutputDir:   out,
+		Format:      FormatJPEG,
+		AddSuffix:   true,
+	}, cancel)
+	for range ch {
+	}
+
+	// Find the produced file.
+	entries, err := os.ReadDir(out)
+	if err != nil || len(entries) != 1 {
+		t.Fatalf("expected 1 output file, got %d (err=%v)", len(entries), err)
+	}
+	f, err := os.Open(filepath.Join(out, entries[0].Name()))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+	got, err := jpeg.Decode(f)
+	if err != nil {
+		t.Fatalf("decode output: %v", err)
+	}
+
+	// Sample several pixels in the centre — they must be near-white.
+	// JPEG encoding may shift values by 1–2 levels; anything below 250
+	// indicates the grey-cast bug has returned.
+	const minChannel = 250
+	b := got.Bounds()
+	samples := []image.Point{
+		{b.Min.X + b.Dx()/4, b.Min.Y + b.Dy()/4},
+		{b.Min.X + b.Dx()/2, b.Min.Y + b.Dy()/2},
+		{b.Min.X + 3*b.Dx()/4, b.Min.Y + 3*b.Dy()/4},
+	}
+	for _, p := range samples {
+		r, g, bl, _ := got.At(p.X, p.Y).RGBA()
+		r8, g8, b8 := r>>8, g>>8, bl>>8
+		if r8 < minChannel || g8 < minChannel || b8 < minChannel {
+			t.Errorf("pixel at %v = (%d,%d,%d); expected each channel >= %d (grey-cast regression)",
+				p, r8, g8, b8, minChannel)
+		}
+	}
+}
+
+// ── imageHasAlpha ─────────────────────────────────────────────────────────────
+
+func TestImageHasAlpha(t *testing.T) {
+	// YCbCr (a freshly decoded JPEG) — no alpha.
+	jpgImg := image.NewYCbCr(image.Rect(0, 0, 4, 4), image.YCbCrSubsampleRatio420)
+	if imageHasAlpha(jpgImg) {
+		t.Error("YCbCr should not be reported as having alpha")
+	}
+	// Gray — no alpha.
+	if imageHasAlpha(image.NewGray(image.Rect(0, 0, 4, 4))) {
+		t.Error("Gray should not be reported as having alpha")
+	}
+	// NRGBA / RGBA — alpha.
+	if !imageHasAlpha(image.NewNRGBA(image.Rect(0, 0, 4, 4))) {
+		t.Error("NRGBA should be reported as having alpha")
+	}
+	if !imageHasAlpha(image.NewRGBA(image.Rect(0, 0, 4, 4))) {
+		t.Error("RGBA should be reported as having alpha")
+	}
+}
