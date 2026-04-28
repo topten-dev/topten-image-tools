@@ -3,6 +3,6 @@ Website = "https://github.com/topten-dev/topten-image-tools"
 [Details]
   ID = "dev.topten.image-tools"
   Name = "Topten Image Tools"
-  Version = "1.0.2"
+  Version = "1.1.0"
   Build = 1
   Icon = "Icon.png"
